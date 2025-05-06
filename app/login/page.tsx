@@ -17,6 +17,11 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Suspense fallback={<LoginFormLoading />}>
         <LoginForm />
+        <div>
+          <p>demo</p>
+          <p>email : hello@gmail.com</p>
+          <p>password: hellopass</p>
+        </div>
       </Suspense>
     </div>
   );
