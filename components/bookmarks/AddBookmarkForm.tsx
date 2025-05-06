@@ -1,20 +1,28 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useBookmarkStore } from '@/lib/store/useBookmarkStore';
 
 interface AddBookmarkFormProps {
   onBookmarkAdded: () => void;
 }
 
 export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProps) {
+  const { user } = useAuthStore();
   const [url, setUrl] = useState('');
   const [tags, setTags] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Get addBookmark function and loading state from Zustand store
+  const { addBookmark } = useBookmarkStore();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setIsLoading(true);
 
     try {
@@ -30,31 +38,25 @@ export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProp
         throw new Error('Invalid URL format');
       }
 
+      // Check if user is logged in
+      if (!user) {
+        throw new Error('Please log in to save bookmarks');
+      }
+
       // Process tags
       const tagArray = tags
         .split(',')
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      // Send the request to the API
-      const response = await fetch('/api/bookmarks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url, tags: tagArray }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to add bookmark');
-      }
+      // Use the Zustand store to add the bookmark
+      await addBookmark(url, tagArray);
 
       // Reset form
       setUrl('');
       setTags('');
-      
+      setSuccess('Bookmark added successfully!');
+
       // Notify parent component
       onBookmarkAdded();
     } catch (err) {
@@ -65,15 +67,21 @@ export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProp
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-full">
       <h2 className="text-xl font-semibold mb-4">Add New Bookmark</h2>
-      
+
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
         </div>
       )}
-      
+
+      {success && (
+        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+          {success}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="url" className="block text-sm font-medium mb-1">
@@ -89,7 +97,7 @@ export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProp
             required
           />
         </div>
-        
+
         <div className="mb-4">
           <label htmlFor="tags" className="block text-sm font-medium mb-1">
             Tags (comma separated)
@@ -103,7 +111,7 @@ export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProp
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        
+
         <button
           type="submit"
           disabled={isLoading}
@@ -111,6 +119,15 @@ export default function AddBookmarkForm({ onBookmarkAdded }: AddBookmarkFormProp
         >
           {isLoading ? 'Adding...' : 'Add Bookmark'}
         </button>
+
+        {!user && (
+          <div className="mt-4 p-3 bg-yellow-100 text-yellow-800 rounded text-sm">
+            <strong>Note:</strong> You need to be logged in to save bookmarks.
+            <a href="/login" className="text-blue-600 hover:underline ml-1">
+              Log in here
+            </a>
+          </div>
+        )}
       </form>
     </div>
   );

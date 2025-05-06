@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/lib/store/useAuthStore';
 import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
   const pathname = usePathname();
-  
-  // Don't show navbar on login or register pages
+
+
   if (pathname === '/login' || pathname === '/register') {
     return null;
   }
@@ -22,36 +22,30 @@ export default function Navbar() {
               <span className="text-xl font-bold">Link Saver</span>
             </Link>
           </div>
-          
+
           <div className="flex items-center">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Link 
-                  href="/dashboard" 
-                  className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={logout}
-                  className="text-gray-700 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400"
-                >
-                  Logout
-                </button>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   {user.email}
                 </div>
+                <button
+                  onClick={logout}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   Login
                 </Link>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
                 >
                   Register

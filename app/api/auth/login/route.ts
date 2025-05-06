@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
     
-    // Validate input
+    
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Authenticate the user
+    
     const user = await authenticateUser(email, password);
     
     if (!user) {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Generate a token
+    
     const token = generateToken(user);
     
     
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       path: '/',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: 60 * 60 * 24 * 7, 
     });
     
     return NextResponse.json({ 

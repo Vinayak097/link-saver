@@ -19,7 +19,7 @@ interface BookmarkItemProps {
 export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const {
     attributes,
     listeners,
@@ -27,7 +27,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
     transform,
     transition,
   } = useSortable({ id: bookmark._id });
-  
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -45,7 +45,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-4 transition-all"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-3 transition-all hover:shadow-md"
     >
       <div className="p-4">
         <div className="flex items-center justify-between">
@@ -56,14 +56,14 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
                 alt=""
                 className="w-6 h-6 mr-3"
                 onError={(e) => {
-                  // If favicon fails to load, hide it
+                 
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
             )}
             <h3 className="text-lg font-semibold">{bookmark.title}</h3>
           </div>
-          
+
           <div className="flex items-center">
             <button
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-move mr-2"
@@ -73,7 +73,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
               </svg>
             </button>
-            
+
             <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mr-2"
@@ -82,7 +82,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isExpanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
               </svg>
             </button>
-            
+
             <button
               onClick={handleDelete}
               disabled={isDeleting}
@@ -94,7 +94,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
             </button>
           </div>
         </div>
-        
+
         <a
           href={bookmark.url}
           target="_blank"
@@ -103,7 +103,7 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
         >
           {bookmark.url}
         </a>
-        
+
         {bookmark.tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
             {bookmark.tags.map((tag) => (
@@ -117,15 +117,15 @@ export default function BookmarkItem({ bookmark, onDelete }: BookmarkItemProps) 
           </div>
         )}
       </div>
+
       
-      {isExpanded && bookmark.summary && (
         <div className="px-4 pb-4">
           <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
             <h4 className="text-sm font-semibold mb-1">Summary:</h4>
             <p className="text-sm text-gray-600 dark:text-gray-300">{bookmark.summary}</p>
           </div>
         </div>
-      )}
+      
     </div>
   );
 }

@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
-// Define the type for our cached connection
+
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
 }
 
-// Add mongoose to the global namespace
+
 declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-// Global is used here to maintain a cached connection across hot reloads
+
 let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 if (!cached) {

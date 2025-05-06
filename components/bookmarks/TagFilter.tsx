@@ -1,53 +1,44 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useBookmarkStore } from '@/lib/store/useBookmarkStore';
 
-interface TagFilterProps {
-  onTagSelect: (tag: string | null) => void;
-}
+interface TagFilterProps {}
 
-export default function TagFilter({ onTagSelect }: TagFilterProps) {
+export default function TagFilter() {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all unique tags from bookmarks
+  // Get bookmarks and loading state from Zustand store
+  const { bookmarks, isLoading, fetchBookmarks } = useBookmarkStore();
+
+  // Fetch bookmarks and extract tags
   useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/bookmarks');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch bookmarks');
-        }
-        
-        const data = await response.json();
-        
-        // Extract all unique tags from bookmarks
-        const allTags = data.bookmarks.flatMap((bookmark: any) => bookmark.tags);
-        const uniqueTags = [...new Set(allTags)];
-        
-        setTags(uniqueTags);
-      } catch (error) {
-        console.error('Error fetching tags:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchTags();
-  }, []);
+    fetchBookmarks();
+  }, [fetchBookmarks]);
+
+  // Extract unique tags from bookmarks
+  useEffect(() => {
+    if (bookmarks.length > 0) {
+      // Extract all unique tags from bookmarks
+      const allTags = bookmarks.flatMap(bookmark => bookmark.tags);
+      const uniqueTags = [...new Set(allTags)];
+      setTags(uniqueTags);
+    }
+  }, [bookmarks]);
+
+  // Get setSelectedTag from Zustand store
+  const { setSelectedTag: setStoreSelectedTag } = useBookmarkStore();
 
   const handleTagClick = (tag: string) => {
     if (selectedTag === tag) {
       // If clicking the already selected tag, clear the filter
       setSelectedTag(null);
-      onTagSelect(null);
+      setStoreSelectedTag(null);
     } else {
       // Otherwise, set the new tag filter
       setSelectedTag(tag);
-      onTagSelect(tag);
+      setStoreSelectedTag(tag);
     }
   };
 
@@ -61,7 +52,6 @@ export default function TagFilter({ onTagSelect }: TagFilterProps) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-sm font-medium mb-2">Filter by tag:</h3>
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => (
           <button
@@ -76,12 +66,12 @@ export default function TagFilter({ onTagSelect }: TagFilterProps) {
             {tag}
           </button>
         ))}
-        
+
         {selectedTag && (
           <button
             onClick={() => {
               setSelectedTag(null);
-              onTagSelect(null);
+              setStoreSelectedTag(null);
             }}
             className="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800 hover:bg-red-200"
           >
